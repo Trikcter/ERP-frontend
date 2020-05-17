@@ -1,10 +1,16 @@
 <template>
-  <div class="home"></div>
+  <div class="home">
+    <Navigation />
+  </div>
 </template>
 
 <script>
+import Navigation from "@/components/Navigation.vue";
+
 export default {
   name: "Home",
-  components: {}
+  components: {
+    Navigation
+  }
 };
 </script>

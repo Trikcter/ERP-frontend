@@ -7,7 +7,7 @@
       >
         <v-col cols="12" class="pa-0 ma-0">
           <v-card class="mx-auto" max-width="344" outlined>
-            <v-tabs v-model="tab">
+            <v-tabs v-model="tab" grow>
               <v-tab>Вход</v-tab>
               <v-tab>Регистрация</v-tab>
             </v-tabs>

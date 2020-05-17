@@ -3,16 +3,18 @@
     <v-card-title class="text-center">
       <div class="mx-auto">Регистрация в системе</div>
     </v-card-title>
-    <v-card-text>
-      <v-form>
+    <v-form ref="form" v-model="valid" lazy-validation>
+      <v-card-text>
         <v-text-field
           v-model="fio"
           label="ФИО"
+          :rules="nameRules"
           placeholder="Введите ФИО"
         ></v-text-field>
         <v-text-field
           v-model="username"
           label="Логин"
+          :rules="[v => !!v || 'Логин не может быть пустым!']"
           placeholder="Введите логин"
         ></v-text-field>
         <v-text-field
@@ -25,14 +27,35 @@
           placeholder="Введите пароль"
           @click:append="show = !show"
         ></v-text-field>
-      </v-form>
-    </v-card-text>
-    <v-card-actions>
-      <v-btn text class="mx-auto" block large v-on:click="registration">
-        Далее
-        <v-icon right large class="px-5">mdi-arrow-right</v-icon>
+      </v-card-text>
+      <v-card-actions>
+        <v-btn text block v-on:click="registration" :disabled="!valid">
+          <v-progress-circular
+            indeterminate
+            color="primary"
+            v-if="isLoading"
+          ></v-progress-circular>
+          <div v-if="!isLoading">
+            Далее
+            <v-icon right class="mb-1">mdi-arrow-right</v-icon>
+          </div>
+        </v-btn>
+      </v-card-actions>
+    </v-form>
+    <v-snackbar
+      v-model="isError"
+      bottom
+      color="red"
+      multi-line
+      right
+      :timeout="timeout"
+    >
+      <v-icon dark class="mr-5">mdi-alert</v-icon>
+      {{ message }}
+      <v-btn dark icon @click="isError = false">
+        <v-icon>mdi-close-circle</v-icon>
       </v-btn>
-    </v-card-actions>
+    </v-snackbar>
   </div>
 </template>
 
@@ -47,32 +70,51 @@ export default {
       password: "",
       fio: "",
       show: false,
+      message: "",
+      isError: false,
+      timeout: 5000,
+      isLoading: false,
+      valid: true,
+      nameRules: [
+        v => !!v || "ФИО не может быть пустым",
+        v => v.split(" ").length >= 2 || "ФИО должно состоять из двух слов"
+      ],
       rules: {
         required: value => !!value || "Пароль не может быть пустым"
       }
     };
   },
   methods: {
-    changeRegistrationType() {
-      this.$data.isUserRegistration = !this.$data.isUserRegistration;
+    getError(value) {
+      this.$data.isError = true;
+      this.$data.message = value;
     },
     registration() {
+      this.$refs.form.validate();
+      this.$data.isLoading = true;
+
       AXIOS.post("/auth/sign-up", {
         username: this.$data.username,
         password: this.$data.password,
         fio: this.$data.fio
       })
-        .then(
-          // eslint-disable-next-line no-unused-vars
-          response => {
-            this.$router.push("/new_organization");
-          },
-          error => {
-            console.log(error.response.data.message);
-          }
-        )
+        .then(response => {
+          this.$data.isLoading = false;
+
+          this.$store.dispatch("login", {
+            token: response.data.accessToken,
+            role: response.data.authorities,
+            username: response.data.username,
+            organization: response.data.organizationName,
+            fio: response.data.fio
+          });
+
+          this.$router.push("/registration_organization");
+        })
         .catch(e => {
-          console.log(e);
+          this.$data.isLoading = false;
+          this.$data.isError = true;
+          this.getError(e.response.data.message);
         });
     }
   }
