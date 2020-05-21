@@ -9,15 +9,33 @@ const routes = [
     name: "Start",
     component: () => import("../views/Start.vue")
   },
-  // {
-  //   path: "/",
-  //   name: "RegistrationOrganization",
-  //   component: () => import("../views/RegistrationOrganization.vue")
-  // },
   {
     path: "/home",
     name: "Home",
     component: () => import("../views/Home.vue")
+  },
+  {
+    path: "/products",
+    name: "Products",
+    component: () => import("../views/Products.vue")
+  },
+  {
+    path: "/warehouses",
+    name: "Warehouses",
+    component: () => import("../views/Warehouses.vue")
+  },
+  {
+    path: "/warehouse/:id",
+    component: () => import("../views/Warehouse.vue"),
+    props: true
+  },
+  {
+    path: "/warehouse_operation",
+    component: () => import("../views/WarehouseOperation.vue")
+  },
+  {
+    path: "/financial_operation",
+    component: () => import("../views/FinancialOperation.vue")
   },
   {
     path: "/registration_organization",

@@ -5,16 +5,20 @@
     style="height:100%; background-color: #ECEFF1"
   >
     <Navigation />
+    <WarehouseForm :warehouseId="this.$props.id" />
   </v-container>
 </template>
 
 <script>
 import Navigation from "@/components/Navigation.vue";
+import WarehouseForm from "@/components/WarehouseForm.vue";
 
 export default {
-  name: "Home",
+  name: "Warehouse",
   components: {
-    Navigation
-  }
+    Navigation,
+    WarehouseForm
+  },
+  props: ["id"]
 };
 </script>

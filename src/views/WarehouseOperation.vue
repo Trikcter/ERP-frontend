@@ -5,16 +5,19 @@
     style="height:100%; background-color: #ECEFF1"
   >
     <Navigation />
+    <WarehouseOperationForm />
   </v-container>
 </template>
 
 <script>
 import Navigation from "@/components/Navigation.vue";
+import WarehouseOperationForm from "@/components/WarehouseOperationForm.vue";
 
 export default {
-  name: "Home",
+  name: "Warehouses",
   components: {
-    Navigation
+    Navigation,
+    WarehouseOperationForm
   }
 };
 </script>

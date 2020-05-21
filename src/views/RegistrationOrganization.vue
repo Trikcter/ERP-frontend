@@ -400,7 +400,7 @@ export default {
         })
         .catch(e => {
           this.$data.isError = true;
-          this.getError(e.response.data.message);
+          this.getError(e.response.data);
         });
     },
     addProducts(path) {
@@ -428,7 +428,7 @@ export default {
         })
         .catch(e => {
           this.$data.isError = true;
-          this.getError(e.response.data.message);
+          this.getError(e.response.data);
         });
     },
     registration(path) {
@@ -456,27 +456,38 @@ export default {
             title: response.data.title
           });
 
-          AXIOS.post("/organization/file", this.$data.avatar.formData, {
-            headers: header
-          })
-            // eslint-disable-next-line no-unused-vars
-            .then(response => {
-              this.$data.isLoading = false;
-
-              if (path) {
-                this.$router.push("/home");
-              } else {
-                this.$data.e1 = 3;
-              }
+          if (this.$data.avatar != null) {
+            AXIOS.post("/organization/file", this.$data.avatar.formData, {
+              headers: header
             })
-            .catch(e => {
-              this.$data.isError = true;
-              this.getError(e.response.data.message);
-            });
+              // eslint-disable-next-line no-unused-vars
+              .then(response => {
+                this.$data.isLoading = false;
+
+                if (path) {
+                  this.$router.push("/home");
+                } else {
+                  this.$data.e1 = 3;
+                }
+              })
+              .catch(e => {
+                this.$data.isError = true;
+                this.getError(e.response.data);
+              });
+          } else {
+            this.$data.isLoading = false;
+
+            if (path) {
+              this.$router.push("/home");
+            } else {
+              this.$data.e1 = 3;
+            }
+          }
         })
         .catch(e => {
           this.$data.isError = true;
-          this.getError(e.response.data.message);
+          this.$data.isLoading = false;
+          this.getError(e.response.data);
         });
     }
   }

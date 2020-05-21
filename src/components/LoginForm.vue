@@ -71,6 +71,9 @@ export default {
       }
     };
   },
+  created() {
+    this.$store.dispatch("logout");
+  },
   methods: {
     login() {
       this.$refs.form.validate();
@@ -87,7 +90,9 @@ export default {
             token: response.data.accessToken,
             role: response.data.authorities,
             username: response.data.username,
-            organization: response.data.organizationName
+            organization: response.data.organizationName,
+            organizationId: response.data.organizationId,
+            fio: response.data.fio
           });
 
           if (
@@ -101,7 +106,13 @@ export default {
         })
         .catch(e => {
           this.$data.isError = true;
-          this.getError(e.response.data.message);
+          this.isLoading = false;
+
+          if (e.response != null) {
+            this.getError(e.response.data.message);
+          } else {
+            this.getError(e.message);
+          }
         });
     },
     getError(value) {

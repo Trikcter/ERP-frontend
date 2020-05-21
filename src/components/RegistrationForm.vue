@@ -114,7 +114,7 @@ export default {
         .catch(e => {
           this.$data.isLoading = false;
           this.$data.isError = true;
-          this.getError(e.response.data.message);
+          this.getError(e.response.data);
         });
     }
   }
