@@ -13,10 +13,10 @@
             </v-tabs>
             <v-tabs-items v-model="tab">
               <v-tab-item>
-                <LoginForm />
+                <TheFormLogin />
               </v-tab-item>
               <v-tab-item>
-                <RegistrationForm />
+                <TheFormRegistration />
               </v-tab-item>
             </v-tabs-items>
           </v-card>
@@ -27,14 +27,14 @@
 </template>
 
 <script>
-import LoginForm from "@/components/LoginForm.vue";
-import RegistrationForm from "@/components/RegistrationForm.vue";
+import TheFormLogin from "@/components/TheFormLogin.vue";
+import TheFormRegistration from "@/components/TheFormRegistration.vue";
 
 export default {
   name: "Start",
   components: {
-    LoginForm,
-    RegistrationForm
+    TheFormLogin,
+    TheFormRegistration
   },
   data() {
     return {

@@ -3,7 +3,6 @@
     v-model="selected"
     :headers="headers"
     :items="warehouses"
-    :search="search"
     :loading="loading"
     :options.sync="options"
     :server-items-length="totalWarehouses"
@@ -11,7 +10,7 @@
     :footer-props="{
       itemsPerPageText: 'Отображать по:'
     }"
-    class="my-10 mx-2"
+    class="my-10 mx-2 elevation-1"
     loading-text="Подождите, данные загружаются"
   >
     <template v-slot:top>
@@ -92,20 +91,6 @@
         Перезагрузить данные
       </v-btn>
     </template>
-    <v-snackbar
-      v-model="isError"
-      bottom
-      color="red"
-      multi-line
-      right
-      :timeout="timeout"
-    >
-      <v-icon dark class="mr-5">mdi-alert</v-icon>
-      {{ message }}
-      <v-btn dark icon @click="isError = false">
-        <v-icon>mdi-close-circle</v-icon>
-      </v-btn>
-    </v-snackbar>
     <template v-slot:item.title="{ item }">
       <v-chip
         :disabled="item.delete"
@@ -126,7 +111,7 @@
 </template>
 
 <script>
-import { AXIOS } from "../plugins/http-commons.js";
+import { getAll, createWarehouse, deleteWarehouses } from "@/API/warehouse.js";
 
 export default {
   name: "WarehouseTable",
@@ -135,11 +120,7 @@ export default {
     selected: [],
     deleteEntity: false,
     headers: [
-      {
-        text: "Наименование склада",
-        value: "title",
-        sortable: false
-      },
+      { text: "Наименование склада", value: "title", sortable: false },
       { text: "Адрес склада", value: "address", sortable: false },
       { text: "Вместительность", value: "volume", sortable: false },
       {
@@ -151,20 +132,15 @@ export default {
     ],
     warehouses: [],
     loading: false,
-    isError: false,
-    message: "",
-    search: "",
     editedIndex: -1,
-    timeout: 5000,
     options: {},
     totalWarehouses: 0,
     editedItem: {
       id: 0,
       title: "",
-      code: "",
-      price: 0
+      address: "",
+      volume: 0
     },
-    snackbarColor: "red",
     defaultItem: {
       title: "",
       address: "",
@@ -197,47 +173,40 @@ export default {
   },
 
   methods: {
-    initialize() {
+    async initialize() {
       this.loading = true;
-      const header = {
-        Authorization: "Bearer " + this.$store.getters.getToken
-      };
 
-      AXIOS.get("warehouse/all/" + this.$store.getters.getOrganizationId, {
-        headers: header,
-        params: {
+      try {
+        const pagination = {
           size: this.options.itemsPerPage,
           direction: this.options.sortDesc[0],
           page: this.options.page - 1,
           sortBy: this.options.sortBy[0]
-        }
-      })
-        .then(response => {
-          this.warehouses = [];
-          this.loading = false;
-          this.totalWarehouses = response.data.totalElements;
+        };
 
-          response.data.content.forEach(el =>
-            this.warehouses.push({
-              id: el.id,
-              title: el.title,
-              address: el.addressTitle,
-              volume: el.volume,
-              delete: el.isDeleted,
-              congestion: this.calculateCongestion(el.volume, el.condition)
-            })
-          );
-        })
-        .catch(e => {
-          this.loading = false;
-          this.getError(e.response.data);
-        });
-    },
+        const response = await getAll(
+          this.$store.getters.getOrganizationId,
+          pagination
+        );
 
-    calculateCongestion(volume, condition) {
-      let countSum = condition.map(c => c.count).reduce((a, b) => a + b, 0);
+        this.warehouses = [];
+        this.totalWarehouses = response.data.totalElements;
 
-      return ((countSum / volume) * 100).toFixed(2);
+        response.data.content.forEach(el =>
+          this.warehouses.push({
+            id: el.id,
+            title: el.title,
+            address: el.addressTitle,
+            volume: el.volume,
+            delete: el.isDeleted,
+            congestion: el.congestion.toFixed(2)
+          })
+        );
+      } catch (error) {
+        console.error(error);
+      } finally {
+        this.loading = false;
+      }
     },
 
     getColor(deleted) {
@@ -264,30 +233,24 @@ export default {
       this.$router.push("/warehouse/" + item.id);
     },
 
-    deleteItem() {
+    async deleteItem() {
       this.deleteEntity = false;
-      let ids = this.selected.map(el => {
-        return el.id;
-      });
-
       this.loading = true;
 
-      const header = {
-        Authorization: "Bearer " + this.$store.getters.getToken
-      };
-
-      AXIOS.delete("/warehouse", { headers: header, data: ids })
-        // eslint-disable-next-line no-unused-vars
-        .then(response => {
-          this.loading = false;
-          this.selected = [];
-
-          this.initialize();
-        })
-        .catch(e => {
-          this.loading = false;
-          this.getError(e.response.data);
+      try {
+        let ids = this.selected.map(el => {
+          return el.id;
         });
+
+        await deleteWarehouses(ids);
+
+        this.selected = [];
+        this.initialize();
+      } catch (error) {
+        console.error(error);
+      } finally {
+        this.loading = false;
+      }
     },
 
     close() {
@@ -299,78 +262,28 @@ export default {
     },
 
     save() {
-      if (this.editedIndex > -1) {
-        this.put();
-      } else {
-        this.post();
-      }
+      this.post();
       this.close();
     },
 
-    post() {
+    async post() {
       this.loading = true;
 
-      const header = {
-        Authorization: "Bearer " + this.$store.getters.getToken
-      };
-
-      AXIOS.post(
-        "/warehouse",
-        {
+      try {
+        const warehouse = {
           title: this.editedItem.title,
           addressTitle: this.editedItem.address,
           volume: this.editedItem.volume,
           organizationId: this.$store.getters.getOrganizationId
-        },
-        {
-          headers: header
-        }
-      )
-        // eslint-disable-next-line no-unused-vars
-        .then(response => {
-          this.loading = false;
-          this.initialize();
-        })
-        .catch(e => {
-          this.loading = false;
-          this.getError(e.response.data.message);
-        });
-    },
+        };
 
-    put() {
-      this.loading = true;
-
-      const header = {
-        Authorization: "Bearer " + this.$store.getters.getToken
-      };
-
-      AXIOS.put(
-        "/warehouse",
-        {
-          id: this.editedItem.id,
-          title: this.editedItem.title,
-          address: this.editedItem.address,
-          volume: this.editedItem.volume,
-          organizationId: this.$store.getters.getOrganizationId
-        },
-        {
-          headers: header
-        }
-      )
-        // eslint-disable-next-line no-unused-vars
-        .then(response => {
-          this.loading = false;
-          this.initialize();
-        })
-        .catch(e => {
-          this.loading = false;
-          this.getError(e.response.data.message);
-        });
-    },
-
-    getError(value) {
-      this.$data.isError = true;
-      this.$data.message = value;
+        await createWarehouse(warehouse);
+        this.initialize();
+      } catch (error) {
+        console.error(error);
+      } finally {
+        this.loading = false;
+      }
     }
   }
 };
