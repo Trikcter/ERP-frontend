@@ -219,7 +219,7 @@ export default {
   computed: {
     logo() {
       return (
-        "http://localhost:8081/api/v1/organization/file/" +
+        "http://localhost:8081/api/v1/organizations/file/" +
         this.$store.getters.getOrganizationId
       );
     }

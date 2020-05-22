@@ -13,7 +13,7 @@
   >
     <template v-slot:top>
       <v-toolbar flat color="white">
-        <v-toolbar-title>Операции со складом</v-toolbar-title>
+        <v-toolbar-title>Операции с финансами</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
         <v-spacer></v-spacer>
         <v-dialog v-model="dialog" max-width="500px">
@@ -71,20 +71,6 @@
         </v-dialog>
       </v-toolbar>
     </template>
-    <v-snackbar
-      v-model="isError"
-      bottom
-      color="red"
-      multi-line
-      right
-      :timeout="timeout"
-    >
-      <v-icon dark class="mr-5">mdi-alert</v-icon>
-      {{ message }}
-      <v-btn dark icon @click="isError = false">
-        <v-icon>mdi-close-circle</v-icon>
-      </v-btn>
-    </v-snackbar>
     <template v-slot:item.name="{ item }">
       <v-chip
         :disabled="item.delete"
@@ -108,7 +94,12 @@
 </template>
 
 <script>
-import { AXIOS } from "../plugins/http-commons.js";
+import {
+  getAll,
+  editOperation,
+  createOperation,
+  deleteOperations
+} from "@/API/financial-operation.js";
 
 export default {
   name: "FinancialOperationForm",
@@ -123,7 +114,11 @@ export default {
         sortable: false,
         value: "name"
       },
-      { text: "Описание", value: "description", sortable: false },
+      {
+        text: "Описание",
+        value: "description",
+        sortable: false
+      },
       {
         text: "Удаление элемента",
         value: "actions",
@@ -135,10 +130,7 @@ export default {
     deleteIds: [],
     editedIndex: -1,
     loading: false,
-    isError: false,
     options: {},
-    message: "",
-    timeout: 5000,
     editedItem: {
       name: "",
       id: 0,
@@ -178,78 +170,54 @@ export default {
       }
     },
 
-    getError(value) {
-      this.loading = false;
-      this.$data.isError = true;
-      this.$data.message = value;
-    },
-
-    initialize() {
-      this.loading = true;
-      const header = {
-        Authorization: "Bearer " + this.$store.getters.getToken
-      };
-
-      const pagination = {
-        size: this.options.itemsPerPage,
-        direction: this.options.sortDesc[0],
-        page: this.options.page - 1,
-        sortBy: this.options.sortBy[0]
-      };
-
-      AXIOS.get(
-        "financial_operation/all/" + this.$store.getters.getOrganizationId,
-        {
-          headers: header,
-          params: pagination
-        }
-      )
-        .then(response => {
-          this.operations = [];
-          this.loading = false;
-
-          this.total = response.data.totalElements;
-
-          response.data.content.forEach(el =>
-            this.operations.push({
-              id: el.id,
-              name: el.name,
-              description: el.description,
-              delete: el.isDeleted
-            })
-          );
-        })
-        .catch(e => {
-          this.getError(e.response.data);
-        });
-    },
-
-    deleted() {
+    async initialize() {
       this.loading = true;
 
-      const header = {
-        Authorization: "Bearer " + this.$store.getters.getToken
-      };
+      try {
+        const pagination = {
+          size: this.options.itemsPerPage,
+          direction: this.options.sortDesc[0],
+          page: this.options.page - 1,
+          sortBy: this.options.sortBy[0]
+        };
 
-      AXIOS.delete("/financial_operation", {
-        headers: header,
-        data: this.deleteIds
-      })
-        // eslint-disable-next-line no-unused-vars
-        .then(response => {
-          this.loading = false;
-          this.selected = [];
-          this.deleteEntity = false;
-          this.deleteIds = [];
+        const response = await getAll(
+          this.$store.getters.getOrganizationId,
+          pagination
+        );
 
-          this.initialize();
-        })
-        .catch(e => {
-          this.deleteEntity = false;
-          this.deleteIds = [];
+        this.operations = [];
+        this.total = response.data.totalElements;
 
-          this.getError(e.response.data);
-        });
+        response.data.content.forEach(el =>
+          this.operations.push({
+            id: el.id,
+            name: el.name,
+            description: el.description,
+            delete: el.isDeleted
+          })
+        );
+      } catch (error) {
+        console.error(error);
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async deleted() {
+      this.loading = true;
+
+      try {
+        await deleteOperations(this.deleteIds);
+        this.initialize();
+      } catch (error) {
+        console.error(error);
+      } finally {
+        this.loading = false;
+        this.selected = [];
+        this.deleteEntity = false;
+        this.deleteIds = [];
+      }
     },
 
     editItem(item) {
@@ -280,59 +248,43 @@ export default {
       this.close();
     },
 
-    post() {
+    async post() {
       this.loading = true;
-      const header = {
-        Authorization: "Bearer " + this.$store.getters.getToken
-      };
 
-      AXIOS.post(
-        "/financial_operation",
-        {
+      try {
+        const operation = {
           name: this.editedItem.name,
           description: this.editedItem.description,
           organizationId: this.$store.getters.getOrganizationId
-        },
-        {
-          headers: header
-        }
-      )
-        // eslint-disable-next-line no-unused-vars
-        .then(response => {
-          this.loading = false;
-          this.initialize();
-        })
-        .catch(e => {
-          this.getError(e.response.data);
-        });
+        };
+
+        await createOperation(operation);
+        this.initialize();
+      } catch (error) {
+        console.error(error);
+      } finally {
+        this.loading = false;
+      }
     },
 
-    put() {
+    async put() {
       this.loading = true;
-      const header = {
-        Authorization: "Bearer " + this.$store.getters.getToken
-      };
 
-      AXIOS.put(
-        "/financial_operation",
-        {
+      try {
+        const operation = {
           id: this.editedItem.id,
           name: this.editedItem.name,
           description: this.editedItem.description,
           organizationId: this.$store.getters.getOrganizationId
-        },
-        {
-          headers: header
-        }
-      )
-        // eslint-disable-next-line no-unused-vars
-        .then(response => {
-          this.loading = false;
-          this.initialize();
-        })
-        .catch(e => {
-          this.getError(e.response.data);
-        });
+        };
+
+        await editOperation(operation);
+        this.initialize();
+      } catch (error) {
+        console.error(error);
+      } finally {
+        this.loading = false;
+      }
     }
   }
 };

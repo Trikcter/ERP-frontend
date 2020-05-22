@@ -3,7 +3,6 @@
     v-model="selected"
     :headers="headers"
     :items="products"
-    :search="search"
     :loading="loading"
     :options.sync="options"
     :server-items-length="totalProducts"
@@ -11,7 +10,7 @@
     :footer-props="{
       itemsPerPageText: 'Отображать по:'
     }"
-    class="my-10 mx-2"
+    class="my-10 mx-2 elevation-1"
     loading-text="Подождите, данные загружаются"
   >
     <template v-slot:top>
@@ -25,7 +24,7 @@
           dark
           text
           class="mb-2"
-          @click="deleteEntity = true"
+          @click="isDelete = true"
         >
           Удалить продукцию
         </v-btn>
@@ -67,7 +66,7 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
-        <v-dialog v-model="deleteEntity" max-width="350px">
+        <v-dialog v-model="isDelete" max-width="350px">
           <v-card>
             <v-card-title>
               <span class="headline">Удаление сущности</span>
@@ -78,10 +77,10 @@
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="deleteEntity = false">
+              <v-btn color="blue darken-1" text @click="isDelete = false">
                 Отмена
               </v-btn>
-              <v-btn color="red darken-1" text @click="deleteItem">Да</v-btn>
+              <v-btn color="red darken-1" text @click="deleteItems">Да</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -90,20 +89,6 @@
     <template v-slot:no-data>
       Нет данных
     </template>
-    <v-snackbar
-      v-model="isError"
-      bottom
-      color="red"
-      multi-line
-      right
-      :timeout="timeout"
-    >
-      <v-icon dark class="mr-5">mdi-alert</v-icon>
-      {{ message }}
-      <v-btn dark icon @click="isError = false">
-        <v-icon>mdi-close-circle</v-icon>
-      </v-btn>
-    </v-snackbar>
     <template v-slot:item.title="{ item }">
       <v-chip
         :disabled="item.delete"
@@ -119,30 +104,27 @@
 </template>
 
 <script>
-import { AXIOS } from "../plugins/http-commons.js";
+import {
+  getAll,
+  createProduct,
+  editProduct,
+  deleteProducts
+} from "@/API/products.js";
 
 export default {
   name: "ProductTable",
   data: () => ({
     dialog: false,
     selected: [],
-    deleteEntity: false,
+    isDelete: false,
     headers: [
-      {
-        text: "Наименование продукции",
-        value: "title",
-        sortable: false
-      },
+      { text: "Наименование продукции", value: "title", sortable: false },
       { text: "Код продукции", value: "code", sortable: false },
       { text: "Цена (Рубли)", value: "price", sortable: false }
     ],
     products: [],
     loading: false,
-    isError: false,
-    message: "",
-    search: "",
     editedIndex: -1,
-    timeout: 5000,
     options: {},
     totalProducts: 0,
     editedItem: {
@@ -151,7 +133,6 @@ export default {
       code: "",
       price: 0
     },
-    snackbarColor: "red",
     defaultItem: {
       title: "",
       code: "",
@@ -186,40 +167,39 @@ export default {
   },
 
   methods: {
-    initialize() {
+    async initialize() {
       this.loading = true;
-      const header = {
-        Authorization: "Bearer " + this.$store.getters.getToken
-      };
 
-      AXIOS.get("product/all/" + this.$store.getters.getOrganizationId, {
-        headers: header,
-        params: {
+      try {
+        const params = {
           size: this.options.itemsPerPage,
           direction: this.options.sortDesc[0],
           page: this.options.page - 1,
           sortBy: this.options.sortBy[0]
-        }
-      })
-        .then(response => {
-          this.products = [];
-          this.loading = false;
-          this.totalProducts = response.data.totalElements;
+        };
 
-          response.data.content.forEach(el =>
-            this.products.push({
-              id: el.id,
-              title: el.title,
-              code: el.code,
-              price: el.price,
-              delete: el.isDeleted
-            })
-          );
-        })
-        .catch(e => {
-          this.loading = false;
-          this.getError(e.response.data);
-        });
+        const response = await getAll(
+          this.$store.getters.getOrganizationId,
+          params
+        );
+
+        this.products = [];
+        this.totalProducts = response.data.totalElements;
+
+        response.data.content.forEach(el =>
+          this.products.push({
+            id: el.id,
+            title: el.title,
+            code: el.code,
+            price: el.price,
+            delete: el.isDeleted
+          })
+        );
+      } catch (error) {
+        console.error(error);
+      } finally {
+        this.loading = false;
+      }
     },
 
     getColor(deleted) {
@@ -236,30 +216,24 @@ export default {
       this.dialog = true;
     },
 
-    deleteItem() {
-      this.deleteEntity = false;
-      let ids = this.selected.map(el => {
-        return el.id;
-      });
-
+    async deleteItems() {
+      this.isDelete = false;
       this.loading = true;
 
-      const header = {
-        Authorization: "Bearer " + this.$store.getters.getToken
-      };
-
-      AXIOS.delete("/product", { headers: header, data: ids })
-        // eslint-disable-next-line no-unused-vars
-        .then(response => {
-          this.loading = false;
-          this.selected = [];
-
-          this.initialize();
-        })
-        .catch(e => {
-          this.loading = false;
-          this.getError(e.response.data);
+      try {
+        let ids = this.selected.map(el => {
+          return el.id;
         });
+
+        await deleteProducts(ids);
+        this.selected = [];
+
+        this.initialize();
+      } catch (error) {
+        console.error(error);
+      } finally {
+        this.loading = false;
+      }
     },
 
     close() {
@@ -279,70 +253,45 @@ export default {
       this.close();
     },
 
-    post() {
+    async post() {
       this.loading = true;
 
-      const header = {
-        Authorization: "Bearer " + this.$store.getters.getToken
-      };
-
-      AXIOS.post(
-        "/product",
-        {
+      try {
+        const product = {
           title: this.editedItem.title,
           code: this.editedItem.code,
           price: this.editedItem.price,
           organizationId: this.$store.getters.getOrganizationId
-        },
-        {
-          headers: header
-        }
-      )
-        // eslint-disable-next-line no-unused-vars
-        .then(response => {
-          this.loading = false;
-          this.initialize();
-        })
-        .catch(e => {
-          this.loading = false;
-          this.getError(e.response.data);
-        });
+        };
+
+        await createProduct(product);
+        this.initialize();
+      } catch (error) {
+        console.error(error);
+      } finally {
+        this.loading = false;
+      }
     },
 
-    put() {
+    async put() {
       this.loading = true;
 
-      const header = {
-        Authorization: "Bearer " + this.$store.getters.getToken
-      };
-
-      AXIOS.put(
-        "/product",
-        {
+      try {
+        const product = {
           id: this.editedItem.id,
           title: this.editedItem.title,
           code: this.editedItem.code,
           price: this.editedItem.price,
           organizationId: this.$store.getters.getOrganizationId
-        },
-        {
-          headers: header
-        }
-      )
-        // eslint-disable-next-line no-unused-vars
-        .then(response => {
-          this.loading = false;
-          this.initialize();
-        })
-        .catch(e => {
-          this.loading = false;
-          this.getError(e.response.data);
-        });
-    },
+        };
 
-    getError(value) {
-      this.$data.isError = true;
-      this.$data.message = value;
+        await editProduct(product);
+        this.initialize();
+      } catch (error) {
+        console.error(error);
+      } finally {
+        this.loading = false;
+      }
     }
   }
 };
