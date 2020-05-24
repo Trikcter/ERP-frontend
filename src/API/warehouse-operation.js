@@ -19,10 +19,10 @@ const editOperation = operation =>
 
 const deleteOperations = ids => AXIOS.delete(END_POINT, { data: ids });
 
-const getAll = (id, params) =>
-  AXIOS.get(END_POINT + "/all/" + id, { params: params });
+const getAll = params => AXIOS.get(END_POINT + "/all", { params: params });
 
-const getAllActive = id => AXIOS.get(END_POINT + "/active/" + id);
+const getAllActive = params =>
+  AXIOS.get(END_POINT + "/all/active", { params: params });
 
 export {
   getAll,

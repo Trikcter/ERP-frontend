@@ -2,10 +2,10 @@
   <v-data-table
     v-model="selected"
     :headers="headers"
-    :items="products"
+    :items="workers"
     :loading="loading"
     :options.sync="options"
-    :server-items-length="totalProducts"
+    :server-items-length="total"
     show-select
     :footer-props="{
       itemsPerPageText: 'Отображать по:'
@@ -15,7 +15,7 @@
   >
     <template v-slot:top>
       <v-toolbar flat>
-        <v-toolbar-title>Продукция компании</v-toolbar-title>
+        <v-toolbar-title>Сотрудники компании</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
         <v-spacer></v-spacer>
         <v-btn
@@ -26,45 +26,20 @@
           class="mb-2"
           @click="isDelete = true"
         >
-          Удалить продукцию
+          Удалить пользователей
         </v-btn>
         <v-dialog v-model="dialog" max-width="500px">
           <template v-slot:activator="{ on }">
             <v-btn color="primary" dark text class="mb-2" v-on="on">
-              Добавить продукцию
+              Добавить сотрудника
             </v-btn>
           </template>
-          <v-card>
-            <v-card-title>
-              <span class="headline">{{ formTitle }}</span>
-            </v-card-title>
-            <v-card-text>
-              <v-container>
-                <v-row class="d-flex flex-column">
-                  <v-text-field
-                    v-model="editedItem.title"
-                    placeholder="Наименование продукции"
-                    label="Введите наименование"
-                  ></v-text-field>
-                  <v-text-field
-                    v-model="editedItem.code"
-                    placeholder="Код продукции"
-                    label="Введите код"
-                  ></v-text-field>
-                  <v-text-field
-                    v-model="editedItem.price"
-                    placeholder="Цена"
-                    label="Введите цену"
-                  ></v-text-field>
-                </v-row>
-              </v-container>
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="red darken-1" text @click="close">Отмена</v-btn>
-              <v-btn color="blue darken-1" text @click="save">Сохранить</v-btn>
-            </v-card-actions>
-          </v-card>
+          <WorkerTableForm
+            :editedIndex="editedIndex"
+            :worker="editedItem"
+            @close="close"
+            @refresh="initialize"
+          />
         </v-dialog>
         <v-dialog v-model="isDelete" max-width="350px">
           <v-card>
@@ -89,7 +64,7 @@
     <template v-slot:no-data>
       Нет данных
     </template>
-    <template v-slot:item.title="{ item }">
+    <template v-slot:item.fio="{ item }">
       <v-chip
         :disabled="item.delete"
         :color="getColor(item.delete)"
@@ -97,55 +72,55 @@
         @click="editItem(item)"
         dark
       >
-        {{ item.title }}
+        {{ item.fio }}
       </v-chip>
     </template>
   </v-data-table>
 </template>
 
 <script>
-import {
-  getAll,
-  createProduct,
-  editProduct,
-  deleteProducts
-} from "@/API/products.js";
+import { getAllWorkers } from "@/API/worker.js";
+import { deleteProducts } from "@/API/products.js";
+
+import WorkerTableForm from "@/components/WorkerTableForm.vue";
 
 export default {
   name: "ProductTable",
+  components: {
+    WorkerTableForm
+  },
   data: () => ({
     dialog: false,
     selected: [],
     isDelete: false,
     headers: [
-      { text: "Наименование продукции", value: "title", sortable: false },
-      { text: "Код продукции", value: "code", sortable: false },
-      { text: "Цена (Рубли)", value: "price", sortable: false }
+      { text: "ФИО", value: "fio", sortable: false },
+      { text: "Должность", value: "roleDescription", sortable: false }
     ],
-    products: [],
+    workers: [],
     loading: false,
     editedIndex: -1,
     options: {},
-    totalProducts: 0,
+    total: 0,
     editedItem: {
       id: 0,
-      title: "",
-      code: "",
-      price: 0
+      login: "",
+      password: "",
+      fio: "",
+      role: null,
+      roleDescription: ""
     },
     defaultItem: {
-      title: "",
-      code: "",
-      price: 0
+      id: 0,
+      login: "",
+      password: "",
+      fio: "",
+      role: null,
+      roleDescription: ""
     }
   }),
 
   computed: {
-    formTitle() {
-      return this.editedIndex === -1
-        ? "Новая продукция"
-        : "Редактирование продукции";
-    },
     deletedEntites() {
       if (this.selected.length > 0) {
         return true;
@@ -179,20 +154,24 @@ export default {
           organizationId: this.$store.getters.getOrganizationId
         };
 
-        const response = await getAll(params);
+        const response = await getAllWorkers(params);
 
-        this.products = [];
-        this.totalProducts = response.data.totalElements;
+        this.workers = [];
+        this.total = response.data.totalElements;
 
-        response.data.content.forEach(el =>
-          this.products.push({
-            id: el.id,
-            title: el.title,
-            code: el.code,
-            price: el.price,
-            delete: el.isDeleted
-          })
-        );
+        response.data.content.forEach(el => {
+          if (el.login != this.$store.getters.getUsername) {
+            this.workers.push({
+              id: el.id,
+              login: el.login,
+              password: el.password,
+              fio: el.fio,
+              role: el.role,
+              roleDescription: el.role.description,
+              delete: el.isDeleted
+            });
+          }
+        });
       } catch (error) {
         console.error(error);
       } finally {
@@ -209,7 +188,7 @@ export default {
     },
 
     editItem(item) {
-      this.editedIndex = this.products.indexOf(item);
+      this.editedIndex = this.workers.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
     },
@@ -249,47 +228,6 @@ export default {
         this.post();
       }
       this.close();
-    },
-
-    async post() {
-      this.loading = true;
-
-      try {
-        const product = {
-          title: this.editedItem.title,
-          code: this.editedItem.code,
-          price: this.editedItem.price,
-          organizationId: this.$store.getters.getOrganizationId
-        };
-
-        await createProduct(product);
-        this.initialize();
-      } catch (error) {
-        console.error(error);
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    async put() {
-      this.loading = true;
-
-      try {
-        const product = {
-          id: this.editedItem.id,
-          title: this.editedItem.title,
-          code: this.editedItem.code,
-          price: this.editedItem.price,
-          organizationId: this.$store.getters.getOrganizationId
-        };
-
-        await editProduct(product);
-        this.initialize();
-      } catch (error) {
-        console.error(error);
-      } finally {
-        this.loading = false;
-      }
     }
   }
 };

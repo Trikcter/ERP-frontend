@@ -115,9 +115,11 @@ export default {
       this.loading = true;
 
       try {
-        const response = await getAllActive(
-          this.$store.getters.getOrganizationId
-        );
+        const params = {
+          organizationId: this.$store.getters.getOrganizationId
+        };
+
+        const response = await getAllActive(params);
 
         this.operations = [];
         this.operationsSelect = [];
@@ -143,10 +145,11 @@ export default {
       this.loading = true;
 
       try {
-        // eslint-disable-next-line no-unused-vars
-        const response = await getAllActiveWarehouse(
-          this.$store.getters.getOrganizationId
-        );
+        const params = {
+          organizationId: this.$store.getters.getOrganizationId
+        };
+
+        const response = await getAllActiveWarehouse(params);
 
         this.warehouses = [];
         this.warehousesSelect = [];
@@ -172,9 +175,11 @@ export default {
       this.loading = true;
 
       try {
-        const response = await getAllActiveProducts(
-          this.$store.getters.getOrganizationId
-        );
+        const params = {
+          organizationId: this.$store.getters.getOrganizationId
+        };
+
+        const response = await getAllActiveProducts(params);
 
         this.products = [];
         this.productsSelect = [];

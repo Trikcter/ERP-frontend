@@ -102,7 +102,7 @@ import {
 } from "@/API/warehouse-operation.js";
 
 export default {
-  name: "FinancialOperationForm",
+  name: "WarehouseOperationForm",
   data: () => ({
     dialog: false,
     deleteEntity: false,
@@ -174,17 +174,15 @@ export default {
       this.loading = true;
 
       try {
-        const pagination = {
+        const params = {
           size: this.options.itemsPerPage,
           direction: this.options.sortDesc[0],
           page: this.options.page - 1,
-          sortBy: this.options.sortBy[0]
+          sortBy: this.options.sortBy[0],
+          organizationId: this.$store.getters.getOrganizationId
         };
 
-        const response = await getAll(
-          this.$store.getters.getOrganizationId,
-          pagination
-        );
+        const response = await getAll(params);
 
         this.operations = [];
         this.total = response.data.totalElements;

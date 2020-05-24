@@ -22,10 +22,10 @@ const editProduct = product =>
 
 const deleteProducts = ids => AXIOS.delete(END_POINT, { data: ids });
 
-const getAll = (id, params) =>
-  AXIOS.get(END_POINT + "/all/" + id, { params: params });
+const getAll = params => AXIOS.get(END_POINT + "/all", { params: params });
 
-const getAllActiveProducts = id => AXIOS.get(END_POINT + "/active/" + id);
+const getAllActiveProducts = params =>
+  AXIOS.get(END_POINT + "/all/active", { params: params });
 
 export {
   createProducts,

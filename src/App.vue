@@ -54,6 +54,10 @@ export default {
           this.getError(error.response.data.message);
           break;
 
+        case 500:
+          this.getError(error.response.message);
+          break;
+
         default:
           this.getError("Непредвиденная ошибка");
       }

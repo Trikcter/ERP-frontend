@@ -24,10 +24,10 @@ const editWarehouse = warehouse =>
 
 const deleteWarehouses = ids => AXIOS.delete(END_POINT, { data: ids });
 
-const getAll = (id, params) =>
-  AXIOS.get(END_POINT + "/all/" + id, { params: params });
+const getAll = params => AXIOS.get(END_POINT + "/all", { params: params });
 
-const getAllActiveWarehouse = id => AXIOS.get(END_POINT + "/active/" + id);
+const getAllActiveWarehouse = params =>
+  AXIOS.get(END_POINT + "/all/active", { params: params });
 
 const getWarehouse = id => AXIOS.get(END_POINT + "/" + id);
 

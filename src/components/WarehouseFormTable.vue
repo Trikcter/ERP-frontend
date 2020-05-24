@@ -22,12 +22,14 @@
               <v-icon dark>mdi-plus</v-icon>
             </v-btn>
           </template>
-          <WarehouseFormCondition
-            :warehouseId="warehouseId"
-            @close="close"
-            @save="save"
-            @refresh="initialize"
-          />
+          <keep-alive>
+            <WarehouseFormCondition
+              :warehouseId="warehouseId"
+              @close="close"
+              @save="save"
+              @refresh="initialize"
+            />
+          </keep-alive>
         </v-dialog>
       </v-toolbar>
     </template>
