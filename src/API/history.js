@@ -7,4 +7,14 @@ const getAllWarehouses = params =>
     params: params
   });
 
-export { getAllWarehouses };
+const getAllOrders = params =>
+  AXIOS.get(END_POINT + "/orders", {
+    params: params
+  });
+
+const getAllBanks = params =>
+  AXIOS.get(END_POINT + "/banks", {
+    params: params
+  });
+
+export { getAllWarehouses, getAllOrders, getAllBanks };

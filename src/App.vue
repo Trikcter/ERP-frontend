@@ -1,5 +1,21 @@
 <template>
   <v-app>
+    <v-system-bar color="blue-grey" lights-out dark class="tile-bar">
+      <v-icon>mdi-factory</v-icon>
+      <span>ERP система</span>
+      <v-spacer></v-spacer>
+      <div class="system-button-group">
+        <v-btn icon x-small @click="minimize">
+          <v-icon>mdi-minus</v-icon>
+        </v-btn>
+        <v-btn icon x-small @click="maximaze">
+          <v-icon>mdi-checkbox-blank-outline</v-icon>
+        </v-btn>
+        <v-btn icon x-small @click="close">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </div>
+    </v-system-bar>
     <v-content>
       <v-snackbar
         v-model="error"
@@ -22,6 +38,11 @@
 
 <script>
 import { AXIOS } from "@/API/http-client.js";
+import {
+  closeWindows,
+  minimizeWindows,
+  maximazeWindows
+} from "@/plugins/electron.js";
 
 export default {
   name: "App",
@@ -36,6 +57,16 @@ export default {
     getError(value) {
       this.error = true;
       this.message = value;
+    },
+    close() {
+      console.log("Kek");
+      closeWindows();
+    },
+    minimize() {
+      minimizeWindows();
+    },
+    maximaze() {
+      maximazeWindows();
     }
   },
   created() {
@@ -68,3 +99,15 @@ export default {
   }
 };
 </script>
+
+<style>
+::-webkit-scrollbar {
+  display: none;
+}
+.tile-bar {
+  -webkit-app-region: drag;
+}
+.system-button-group {
+  -webkit-app-region: no-drag;
+}
+</style>

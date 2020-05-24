@@ -112,7 +112,7 @@
             <v-list-item-title class="subtitle-2">Финансы</v-list-item-title>
           </v-list-item-content>
         </template>
-        <v-list-item to="/warehouses" link class="ml-5" active-class="active">
+        <v-list-item to="/banks" link class="ml-5" active-class="active">
           <v-list-item-icon>
             <v-icon>mdi-bank-transfer</v-icon>
           </v-list-item-icon>
@@ -124,7 +124,7 @@
           </v-list-item-content>
         </v-list-item>
 
-        <v-list-item to="/warehouses" link class="ml-5" active-class="active">
+        <v-list-item to="/orders" link class="ml-5" active-class="active">
           <v-list-item-icon>
             <v-icon>mdi-cash-register</v-icon>
           </v-list-item-icon>
@@ -136,14 +136,31 @@
           </v-list-item-content>
         </v-list-item>
 
-        <v-list-item to="/warehouses_history" link class="ml-5">
+        <v-list-item to="/bank_history" link class="ml-5" active-class="active">
           <v-list-item-icon>
             <v-icon>mdi-history</v-icon>
           </v-list-item-icon>
 
           <v-list-item-content>
             <v-list-item-title class="subtitle-2">
-              История операций
+              История банковских операций
+            </v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+
+        <v-list-item
+          to="/order_history"
+          link
+          class="ml-5"
+          active-class="active"
+        >
+          <v-list-item-icon>
+            <v-icon>mdi-clock-outline</v-icon>
+          </v-list-item-icon>
+
+          <v-list-item-content>
+            <v-list-item-title class="subtitle-2">
+              История продаж
             </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
