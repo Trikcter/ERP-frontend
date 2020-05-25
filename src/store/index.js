@@ -8,22 +8,37 @@ export default new Vuex.Store({
     token: localStorage.getItem("token") || "",
     username: localStorage.getItem("username") || "",
     organization: localStorage.getItem("organization") || "",
-    role: localStorage.getItem("role") || ""
+    organizationId: localStorage.getItem("organizationId") || 0,
+    role: localStorage.getItem("role") || "",
+    fio: localStorage.getItem("fio") || ""
   },
   getters: {
     getUsername: state => {
       return state.username;
     },
+    getOrganization: state => {
+      return state.organization;
+    },
     getToken: state => {
       return state.token;
+    },
+    getOrganizationId: state => {
+      return state.organizationId;
+    },
+    getFio: state => {
+      return state.fio;
     }
   },
   mutations: {
     auth_login: (state, user) => {
       localStorage.setItem("token", user.token);
-      localStorage.setItem("username", user.name);
+      localStorage.setItem("username", user.username);
       localStorage.setItem("role", user.role[0]);
       localStorage.setItem("organization", user.organization);
+      localStorage.setItem("fio", user.fio);
+      localStorage.setItem("organizationId", user.organizationId);
+      state.organizationId = user.organizationId;
+      state.fio = user.fio;
       state.token = user.token;
       state.username = user.username;
       state.role = user.role[0];
@@ -33,10 +48,21 @@ export default new Vuex.Store({
       state.token = "";
       state.role = "";
       state.username = "";
+      state.organization = "";
+      state.organizationId = "";
+      state.fio = "";
+      localStorage.removeItem("fio");
+      localStorage.removeItem("organizationId");
       localStorage.removeItem("token");
       localStorage.removeItem("role");
       localStorage.removeItem("username");
-      localStorage.removeItem("organizaation");
+      localStorage.removeItem("organization");
+    },
+    reg_organization: (state, newOrganization) => {
+      localStorage.setItem("organization", newOrganization.title);
+      localStorage.setItem("organizationId", newOrganization.id);
+      state.organization = newOrganization.title;
+      state.organizationId = newOrganization.id;
     }
   },
   actions: {
@@ -45,6 +71,9 @@ export default new Vuex.Store({
     },
     logout: context => {
       context.commit("auth_logout");
+    },
+    addOrganization: (context, organization) => {
+      context.commit("reg_organization", organization);
     }
   }
 });
