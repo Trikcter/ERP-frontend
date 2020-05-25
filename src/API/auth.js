@@ -15,4 +15,6 @@ const login = (username, password) =>
     password: password
   });
 
-export { createUser, login };
+const logout = () => AXIOS.get(END_POINT + "/logout");
+
+export { createUser, login, logout };

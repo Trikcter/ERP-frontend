@@ -5,6 +5,7 @@ import {
   createProtocol
   /* installVueDevtools */
 } from "vue-cli-plugin-electron-builder/lib";
+
 const isDevelopment = process.env.NODE_ENV !== "production";
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -24,7 +25,8 @@ function createWindow() {
     frame: false,
     webPreferences: {
       nodeIntegration: true
-    }
+    },
+    icon: __dirname + "/build/icon.png"
   });
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {

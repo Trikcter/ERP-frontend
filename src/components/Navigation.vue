@@ -223,6 +223,8 @@
 </template>
 
 <script>
+import { logout } from "@/API/auth.js";
+
 export default {
   name: "Navigation",
   data() {
@@ -247,7 +249,8 @@ export default {
     }
   },
   methods: {
-    logout() {
+    async logout() {
+      await logout();
       this.$router.push("/");
     }
   }

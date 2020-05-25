@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-system-bar color="blue-grey" lights-out dark class="tile-bar">
+    <v-system-bar app color="blue-grey" lights-out dark class="tile-bar">
       <v-icon>mdi-factory</v-icon>
       <span>ERP система</span>
       <v-spacer></v-spacer>
@@ -59,8 +59,8 @@ export default {
       this.message = value;
     },
     close() {
-      console.log("Kek");
       closeWindows();
+      this.$store.dispatch("logout");
     },
     minimize() {
       minimizeWindows();
@@ -70,6 +70,13 @@ export default {
     }
   },
   created() {
+    const getAuthToken = () => "Bearer " + localStorage.getItem("token");
+
+    const authInterceptor = config => {
+      config.headers["Authorization"] = getAuthToken();
+      return config;
+    };
+
     const errorInterceptor = error => {
       if (!error.response) {
         this.getError("Ошибка сервера/сети");
@@ -96,6 +103,7 @@ export default {
     };
 
     AXIOS.interceptors.response.use(undefined, errorInterceptor);
+    AXIOS.interceptors.request.use(authInterceptor);
   }
 };
 </script>
