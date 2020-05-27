@@ -161,7 +161,7 @@ export default {
         await editWorker(worker, params);
 
         this.select = null;
-        this.$refs.form.resetValidation();
+        this.$refs.form.reset();
 
         this.$emit("refresh");
       } catch (error) {

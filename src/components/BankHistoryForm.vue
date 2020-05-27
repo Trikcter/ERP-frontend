@@ -38,6 +38,11 @@ export default {
           sortable: false
         },
         {
+          text: "Сумма операции",
+          value: "sum",
+          sortable: false
+        },
+        {
           text: "Комментарий к операции",
           value: "comment",
           sortable: false

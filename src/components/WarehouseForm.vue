@@ -151,7 +151,7 @@ export default {
         };
 
         await editWarehouse(warehouse);
-        this.$refs.form.resetValidation();
+        this.$refs.form.reset();
 
         this.initialize();
       } catch (error) {

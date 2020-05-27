@@ -85,7 +85,7 @@ export default {
 
         const balanceChart = await getBalanceChart(params);
         let balanceLabels = balanceChart.data.labels;
-        let balanceData = balanceChart.data.labels;
+        let balanceData = balanceChart.data.values;
 
         this.balanceData = {
           labels: balanceLabels,

@@ -38,6 +38,7 @@
 
 <script>
 import { AXIOS } from "@/API/http-client.js";
+import { logout } from "@/API/auth.js";
 import {
   closeWindows,
   minimizeWindows,
@@ -58,8 +59,9 @@ export default {
       this.error = true;
       this.message = value;
     },
-    close() {
+    async close() {
       closeWindows();
+      await logout();
       this.$store.dispatch("logout");
     },
     minimize() {

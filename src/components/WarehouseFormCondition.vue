@@ -141,14 +141,12 @@ export default {
         this.operationsSelect = [];
 
         response.data.content.forEach(el => {
-          if (el.id != this.warehouseId) {
-            this.operations.push({
-              id: el.id,
-              title: el.name
-            });
+          this.operations.push({
+            id: el.id,
+            title: el.name
+          });
 
-            this.operationsSelect.push(el.name);
-          }
+          this.operationsSelect.push(el.name);
         });
       } catch (error) {
         console.error(error);
@@ -249,7 +247,7 @@ export default {
         this.$emit("save");
 
         await createCondition(condition, params);
-        this.$refs.form.resetValidation();
+        this.$refs.form.reset();
 
         this.$emit("refresh");
       } catch (error) {

@@ -140,9 +140,6 @@ export default {
     valid: false,
     priceRules: [
       v => !!v || "Цена не может быть пустой!",
-      v =>
-        (typeof v == "string" && !v.includes(",")) ||
-        "Дробное число записывает через точку!",
       v => !isNaN(v) || "Цена может быть тольком числом!"
     ],
     editedIndex: -1,
@@ -256,6 +253,7 @@ export default {
     },
 
     close() {
+      this.$refs.form.reset();
       this.dialog = false;
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
@@ -269,6 +267,7 @@ export default {
       } else {
         this.post();
       }
+      this.$refs.form.reset();
       this.close();
     },
 
@@ -284,6 +283,7 @@ export default {
         };
 
         await createProduct(product);
+
         this.initialize();
       } catch (error) {
         console.error(error);
@@ -305,6 +305,7 @@ export default {
         };
 
         await editProduct(product);
+
         this.initialize();
       } catch (error) {
         console.error(error);

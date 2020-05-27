@@ -33,6 +33,6 @@ const editWorker = (worker, params) =>
     }
   );
 
-const deleteProducts = ids => AXIOS.delete(END_POINT, { data: ids });
+const deleteWorkers = ids => AXIOS.delete(END_POINT, { data: ids });
 
-export { createWorker, getAllWorkers, editWorker, deleteProducts };
+export { createWorker, getAllWorkers, editWorker, deleteWorkers };

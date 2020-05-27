@@ -79,8 +79,7 @@
 </template>
 
 <script>
-import { getAllWorkers } from "@/API/worker.js";
-import { deleteProducts } from "@/API/products.js";
+import { getAllWorkers, deleteWorkers } from "@/API/worker.js";
 
 import WorkerTableForm from "@/components/WorkerTableForm.vue";
 
@@ -202,7 +201,7 @@ export default {
           return el.id;
         });
 
-        await deleteProducts(ids);
+        await deleteWorkers(ids);
         this.selected = [];
 
         this.initialize();

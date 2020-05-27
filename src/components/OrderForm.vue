@@ -159,7 +159,7 @@ export default {
         };
 
         await create(operation, params);
-        this.$refs.form.resetValidation();
+        this.$refs.form.reset();
 
         this.initialize();
       } catch (error) {

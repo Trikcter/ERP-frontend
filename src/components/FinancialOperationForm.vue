@@ -256,7 +256,7 @@ export default {
       } else {
         this.post();
       }
-      this.$refs.form.resetValidation();
+      this.$refs.form.reset();
       this.close();
     },
 
