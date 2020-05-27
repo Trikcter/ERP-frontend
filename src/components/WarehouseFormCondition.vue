@@ -6,50 +6,65 @@
     <v-card-text>
       <v-container>
         <v-row class="d-flex flex-row">
-          <v-col cols="6" class="pa-0 ma-0">
-            <v-autocomplete
-              v-model="selectProduct"
-              :loading="loading"
-              :items="productsSelect"
-              flat
-              class="mr-5"
-              hide-no-data
-              label="Продукция"
-              placeholder="Выберите продукцию"
-            ></v-autocomplete>
-          </v-col>
-          <v-col cols="6" class="pa-0 ma-0">
-            <v-text-field
-              v-model="count"
-              label="Количество"
-              placeholder="Введите количество товара"
-            ></v-text-field>
-          </v-col>
-          <v-checkbox
-            v-model="into"
-            label="Перемещения между складами организации?"
-          ></v-checkbox>
-          <v-autocomplete
-            v-model="selectWarehouse"
-            :loading="loading"
-            :items="warehousesSelect"
-            :disabled="!into"
-            flat
-            class="mr-5"
-            hide-no-data
-            label="Склад"
-            placeholder="Выберите склад"
-          ></v-autocomplete>
-          <v-autocomplete
-            v-model="selectOperation"
-            :loading="loading"
-            :items="operationsSelect"
-            flat
-            class="mr-5"
-            hide-no-data
-            label="Тип операции"
-            placeholder="Выберите причину перевода товаров"
-          ></v-autocomplete>
+          <v-form
+            ref="form"
+            v-model="valid"
+            lazy-validation
+            style="width: 100%"
+            class="ma-0 pa-0"
+          >
+            <v-container fluid class="ma-0 pa-0">
+              <v-row class="d-flex flex-row ma-0 pa-0">
+                <v-col cols="6" class="pa-0 ma-0 ml-0">
+                  <v-autocomplete
+                    v-model="selectProduct"
+                    :loading="loading"
+                    :items="productsSelect"
+                    :rules="[v => !!v || 'Продукция не может быть пустой!']"
+                    flat
+                    class="mr-5"
+                    hide-no-data
+                    label="Продукция"
+                    placeholder="Выберите продукцию"
+                  ></v-autocomplete>
+                </v-col>
+                <v-col cols="6" class="pa-0 ma-0">
+                  <v-text-field
+                    v-model="count"
+                    :rules="countRules"
+                    label="Количество"
+                    placeholder="Введите количество товара"
+                  ></v-text-field>
+                </v-col>
+                <v-checkbox
+                  v-model="into"
+                  label="Перемещения между складами организации?"
+                ></v-checkbox>
+                <v-autocomplete
+                  v-model="selectWarehouse"
+                  :loading="loading"
+                  :items="warehousesSelect"
+                  :disabled="!into"
+                  flat
+                  class="mr-5"
+                  hide-no-data
+                  label="Склад"
+                  placeholder="Выберите склад"
+                ></v-autocomplete>
+                <v-autocomplete
+                  v-model="selectOperation"
+                  :loading="loading"
+                  :items="operationsSelect"
+                  :rules="[v => !!v || 'Операция не может быть пустой!']"
+                  flat
+                  class="mr-5"
+                  hide-no-data
+                  label="Тип операции"
+                  placeholder="Выберите причину перевода товаров"
+                ></v-autocomplete>
+              </v-row>
+            </v-container>
+          </v-form>
         </v-row>
       </v-container>
     </v-card-text>
@@ -61,14 +76,9 @@
         text
         @click="saveCondition"
         :loading="loading"
-        :disabled="loading"
+        :disabled="!valid && loading"
       >
         Сохранить
-        <template v-slot:loader>
-          <span class="custom-loader">
-            <v-icon light>mdi-cached</v-icon>
-          </span>
-        </template>
       </v-btn>
     </v-card-actions>
   </v-card>
@@ -94,6 +104,12 @@ export default {
       selectOperation: null,
       into: false,
       products: [],
+      valid: false,
+      countRules: [
+        v => !!v || "Количество продукции не может быть пустой!",
+        v => !isNaN(v) || "Количество - это число!",
+        v => Number.isInteger(parseInt(v, 10)) || "Количество - целое число!"
+      ],
       productsSelect: [],
       warehouses: [],
       warehousesSelect: [],
@@ -233,6 +249,7 @@ export default {
         this.$emit("save");
 
         await createCondition(condition, params);
+        this.$refs.form.resetValidation();
 
         this.$emit("refresh");
       } catch (error) {

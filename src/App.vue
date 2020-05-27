@@ -38,11 +38,11 @@
 
 <script>
 import { AXIOS } from "@/API/http-client.js";
-import {
-  closeWindows,
-  minimizeWindows,
-  maximazeWindows
-} from "@/plugins/electron.js";
+// import {
+//   closeWindows,
+//   minimizeWindows,
+//   maximazeWindows
+// } from "@/plugins/electron.js";
 
 export default {
   name: "App",
@@ -59,14 +59,14 @@ export default {
       this.message = value;
     },
     close() {
-      closeWindows();
+      // closeWindows();
       this.$store.dispatch("logout");
     },
     minimize() {
-      minimizeWindows();
+      // minimizeWindows();
     },
     maximaze() {
-      maximazeWindows();
+      // maximazeWindows();
     }
   },
   created() {
@@ -93,7 +93,7 @@ export default {
           break;
 
         case 500:
-          this.getError(error.response.message);
+          this.getError(error.response.data.message);
           break;
 
         default:

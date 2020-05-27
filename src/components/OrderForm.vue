@@ -159,6 +159,8 @@ export default {
         };
 
         await create(operation, params);
+        this.$refs.form.resetValidation();
+
         this.initialize();
       } catch (error) {
         console.error(error);

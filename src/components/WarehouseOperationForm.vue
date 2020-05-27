@@ -30,16 +30,21 @@
             <v-card-text>
               <v-container>
                 <v-row class="d-flex flex-column">
-                  <v-text-field
-                    v-model="editedItem.name"
-                    label="Название операции"
-                    placeholder="Введите название"
-                  ></v-text-field>
-                  <v-textarea
-                    v-model="editedItem.description"
-                    label="Описание"
-                    placeholder="Введите описание"
-                  ></v-textarea>
+                  <v-form ref="form" v-model="valid" lazy-validation>
+                    <v-text-field
+                      v-model="editedItem.name"
+                      label="Название операции"
+                      :rules="[
+                        v => !!v || 'Название операции не может быть пустой!'
+                      ]"
+                      placeholder="Введите название"
+                    ></v-text-field>
+                    <v-textarea
+                      v-model="editedItem.description"
+                      label="Описание"
+                      placeholder="Введите описание"
+                    ></v-textarea>
+                  </v-form>
                 </v-row>
               </v-container>
             </v-card-text>
@@ -47,7 +52,14 @@
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text @click="close">Отменить</v-btn>
-              <v-btn color="blue darken-1" text @click="save">Сохранить</v-btn>
+              <v-btn
+                color="blue darken-1"
+                text
+                @click="save"
+                :disabled="!valid"
+              >
+                Сохранить
+              </v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -107,6 +119,7 @@ export default {
     dialog: false,
     deleteEntity: false,
     total: 0,
+    valid: false,
     headers: [
       {
         text: "Наименование",

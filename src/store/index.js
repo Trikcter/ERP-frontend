@@ -13,6 +13,49 @@ export default new Vuex.Store({
     fio: localStorage.getItem("fio") || ""
   },
   getters: {
+    mainAuthorities: state => {
+      if (state.role == "CEO" || state.role == "ADMIN" || state.role == "CFO") {
+        return true;
+      } else {
+        false;
+      }
+    },
+    warehouseAuthorities: state => {
+      if (
+        state.role == "CEO" ||
+        state.role == "ADMIN" ||
+        state.role == "CFO" ||
+        state.role == "STOREKEEPER"
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+    workerAuthorities: state => {
+      if (
+        state.role == "CEO" ||
+        state.role == "ADMIN" ||
+        state.role == "CFO" ||
+        state.role == "HR"
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+    orderAuthorities: state => {
+      if (
+        state.role == "CEO" ||
+        state.role == "ADMIN" ||
+        state.role == "CFO" ||
+        state.role == "SELLER"
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    },
     getUsername: state => {
       return state.username;
     },
@@ -33,7 +76,7 @@ export default new Vuex.Store({
     auth_login: (state, user) => {
       localStorage.setItem("token", user.token);
       localStorage.setItem("username", user.username);
-      localStorage.setItem("role", user.role[0]);
+      localStorage.setItem("role", user.role);
       localStorage.setItem("organization", user.organization);
       localStorage.setItem("fio", user.fio);
       localStorage.setItem("organizationId", user.organizationId);
@@ -41,7 +84,7 @@ export default new Vuex.Store({
       state.fio = user.fio;
       state.token = user.token;
       state.username = user.username;
-      state.role = user.role[0];
+      state.role = user.role;
       state.organization = user.organization;
     },
     auth_logout: state => {

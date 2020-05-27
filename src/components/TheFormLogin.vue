@@ -60,7 +60,7 @@ export default {
         const response = await login(this.username, this.password);
         this.$store.dispatch("login", {
           token: response.data.accessToken,
-          role: response.data.authorities,
+          role: response.data.authorities[0].authority,
           username: response.data.username,
           organization: response.data.organizationName,
           organizationId: response.data.organizationId,

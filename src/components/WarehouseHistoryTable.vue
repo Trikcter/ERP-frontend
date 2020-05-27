@@ -81,16 +81,16 @@ export default {
       const warehouse = this.findElement(this.warehouses, this.selectWarehouse);
 
       try {
-        const pagination = {
+        const params = {
           size: this.options.itemsPerPage,
           direction: this.options.sortDesc[0],
           page: this.options.page - 1,
           sortBy: this.options.sortBy[0],
-          organizationId: this.$store.getters.getOrganizationId,
-          warehouseId: warehouse == null ? null : warehouse.id
+          warehouseId: warehouse == null ? "" : warehouse.id,
+          organizationId: this.$store.getters.getOrganizationId
         };
 
-        const response = await getAllWarehouses(pagination);
+        const response = await getAllWarehouses(params);
 
         this.histories = [];
         this.total = 0;
@@ -119,10 +119,11 @@ export default {
       this.loading = true;
 
       try {
-        // eslint-disable-next-line no-unused-vars
-        const response = await getAllActiveWarehouse(
-          this.$store.getters.getOrganizationId
-        );
+        const params = {
+          organizationId: this.$store.getters.getOrganizationId
+        };
+
+        const response = await getAllActiveWarehouse(params);
 
         this.warehouses = [];
         this.warehousesSelect = [];

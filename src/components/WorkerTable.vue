@@ -38,7 +38,7 @@
             :editedIndex="editedIndex"
             :worker="editedItem"
             @close="close"
-            @refresh="initialize"
+            @refresh="refresh"
           />
         </v-dialog>
         <v-dialog v-model="isDelete" max-width="350px">
@@ -213,21 +213,16 @@ export default {
       }
     },
 
+    refresh() {
+      this.initialize();
+    },
+
     close() {
       this.dialog = false;
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
       });
-    },
-
-    save() {
-      if (this.editedIndex > -1) {
-        this.put();
-      } else {
-        this.post();
-      }
-      this.close();
     }
   }
 };

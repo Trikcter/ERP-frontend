@@ -41,21 +41,30 @@
             <v-card-text>
               <v-container>
                 <v-row class="d-flex flex-column">
-                  <v-text-field
-                    v-model="editedItem.title"
-                    placeholder="Наименование склада"
-                    label="Введите наименование"
-                  ></v-text-field>
-                  <v-text-field
-                    v-model="editedItem.address"
-                    placeholder="Адрес склада"
-                    label="Введите адрес"
-                  ></v-text-field>
-                  <v-text-field
-                    v-model="editedItem.volume"
-                    placeholder="Вместительность"
-                    label="Введите вместительность склада"
-                  ></v-text-field>
+                  <v-form ref="form_w" v-model="valid" lazy-validation>
+                    <v-text-field
+                      v-model="editedItem.title"
+                      placeholder="Наименование склада"
+                      :rules="[
+                        v => !!v || 'Название склада не может быть пустым!'
+                      ]"
+                      label="Введите наименование"
+                    ></v-text-field>
+                    <v-text-field
+                      v-model="editedItem.address"
+                      placeholder="Адрес склада"
+                      :rules="[
+                        v => !!v || 'Адрес склада не может быть пустым!'
+                      ]"
+                      label="Введите адрес"
+                    ></v-text-field>
+                    <v-text-field
+                      v-model="editedItem.volume"
+                      placeholder="Вместительность"
+                      :rules="volumeRules"
+                      label="Введите вместительность склада"
+                    ></v-text-field>
+                  </v-form>
                 </v-row>
               </v-container>
             </v-card-text>
@@ -135,6 +144,12 @@ export default {
     editedIndex: -1,
     options: {},
     totalWarehouses: 0,
+    volumeRules: [
+      v => !!v || "Вместительность склада не может быть пустой!",
+      v => !isNaN(v) || "Вместительность - это число!",
+      v => Number.isInteger(parseInt(v, 10)) || "Вместительность - целое число!"
+    ],
+    valid: false,
     editedItem: {
       id: 0,
       title: "",

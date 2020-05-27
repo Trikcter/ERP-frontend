@@ -38,7 +38,11 @@
         </v-list-item-content>
       </v-list-item>
 
-      <v-list-item to="/products" link>
+      <v-list-item
+        to="/products"
+        link
+        v-if="this.$store.getters.mainAuthorities"
+      >
         <v-list-item-icon>
           <v-icon>mdi-basket</v-icon>
         </v-list-item-icon>
@@ -54,6 +58,7 @@
         prepend-icon="mdi-store"
         v-ripple="{ class: 'white--text' }"
         active-class="active"
+        v-if="this.$store.getters.warehouseAuthorities"
       >
         <template v-slot:activator>
           <v-list-item-content>
@@ -90,7 +95,11 @@
         </v-list-item>
       </v-list-group>
 
-      <v-list-item to="/workers" link>
+      <v-list-item
+        to="/workers"
+        link
+        v-if="this.$store.getters.workerAuthorities"
+      >
         <v-list-item-icon>
           <v-icon>mdi-account-supervisor</v-icon>
         </v-list-item-icon>
@@ -112,7 +121,13 @@
             <v-list-item-title class="subtitle-2">Финансы</v-list-item-title>
           </v-list-item-content>
         </template>
-        <v-list-item to="/banks" link class="ml-5" active-class="active">
+        <v-list-item
+          to="/banks"
+          link
+          class="ml-5"
+          active-class="active"
+          v-if="this.$store.getters.mainAuthorities"
+        >
           <v-list-item-icon>
             <v-icon>mdi-bank-transfer</v-icon>
           </v-list-item-icon>
@@ -124,7 +139,13 @@
           </v-list-item-content>
         </v-list-item>
 
-        <v-list-item to="/orders" link class="ml-5" active-class="active">
+        <v-list-item
+          to="/orders"
+          link
+          class="ml-5"
+          active-class="active"
+          v-if="this.$store.getters.orderAuthorities"
+        >
           <v-list-item-icon>
             <v-icon>mdi-cash-register</v-icon>
           </v-list-item-icon>
@@ -136,7 +157,13 @@
           </v-list-item-content>
         </v-list-item>
 
-        <v-list-item to="/bank_history" link class="ml-5" active-class="active">
+        <v-list-item
+          to="/bank_history"
+          link
+          class="ml-5"
+          active-class="active"
+          v-if="this.$store.getters.mainAuthorities"
+        >
           <v-list-item-icon>
             <v-icon>mdi-history</v-icon>
           </v-list-item-icon>
@@ -153,6 +180,7 @@
           link
           class="ml-5"
           active-class="active"
+          v-if="this.$store.getters.mainAuthorities"
         >
           <v-list-item-icon>
             <v-icon>mdi-clock-outline</v-icon>
@@ -170,6 +198,7 @@
         prepend-icon="mdi-bookshelf"
         v-ripple="{ class: 'white--text' }"
         active-class="active"
+        v-if="this.$store.getters.mainAuthorities"
       >
         <template v-slot:activator>
           <v-list-item-content>

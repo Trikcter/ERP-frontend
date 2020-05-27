@@ -84,7 +84,7 @@ export default {
       addressTitle: "",
       volume: 0,
       loading: false,
-      valid: true,
+      valid: false,
       edit: false,
       volumeRules: [
         v => !!v || "Вместительность склада не может быть пустой!",
@@ -151,6 +151,7 @@ export default {
         };
 
         await editWarehouse(warehouse);
+        this.$refs.form.resetValidation();
 
         this.initialize();
       } catch (error) {

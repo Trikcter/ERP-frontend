@@ -33,6 +33,7 @@
               v-model="select"
               :loading="loading"
               :items="rolesSelect"
+              :rules="[v => !!v || 'Должность не может быть пустой!']"
               flat
               hide-no-data
               label="Должность"
@@ -89,7 +90,6 @@ export default {
       this.loading = true;
 
       try {
-        // eslint-disable-next-line no-unused-vars
         const response = await getAllRoles();
 
         this.roles = [];
@@ -131,7 +131,10 @@ export default {
 
         await createWorker(worker, params);
 
-        this.initialize();
+        this.select = null;
+        this.$refs.form.resetValidation();
+
+        this.$emit("refresh");
       } catch (error) {
         console.error(error);
       } finally {
@@ -157,7 +160,10 @@ export default {
 
         await editWorker(worker, params);
 
-        this.initialize();
+        this.select = null;
+        this.$refs.form.resetValidation();
+
+        this.$emit("refresh");
       } catch (error) {
         console.error(error);
       } finally {
@@ -171,7 +177,7 @@ export default {
       } else {
         this.post();
       }
-      this.$emit("refresh");
+      this.initialize();
       this.close();
     },
 

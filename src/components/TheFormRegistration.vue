@@ -79,7 +79,7 @@ export default {
 
         this.$store.dispatch("login", {
           token: response.data.accessToken,
-          role: response.data.authorities,
+          role: response.data.authorities[0].authority,
           username: response.data.username,
           organization: response.data.organizationName,
           fio: response.data.fio

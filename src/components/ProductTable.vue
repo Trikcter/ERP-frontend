@@ -41,28 +41,41 @@
             <v-card-text>
               <v-container>
                 <v-row class="d-flex flex-column">
-                  <v-text-field
-                    v-model="editedItem.title"
-                    placeholder="Наименование продукции"
-                    label="Введите наименование"
-                  ></v-text-field>
-                  <v-text-field
-                    v-model="editedItem.code"
-                    placeholder="Код продукции"
-                    label="Введите код"
-                  ></v-text-field>
-                  <v-text-field
-                    v-model="editedItem.price"
-                    placeholder="Цена"
-                    label="Введите цену"
-                  ></v-text-field>
+                  <v-form ref="form" v-model="valid" lazy-validation>
+                    <v-text-field
+                      v-model="editedItem.title"
+                      :rules="[
+                        v => !!v || 'Название продукта не может быть пустым!'
+                      ]"
+                      placeholder="Наименование продукции"
+                      label="Введите наименование"
+                    ></v-text-field>
+                    <v-text-field
+                      v-model="editedItem.code"
+                      placeholder="Код продукции"
+                      label="Введите код"
+                    ></v-text-field>
+                    <v-text-field
+                      v-model="editedItem.price"
+                      :rules="priceRules"
+                      placeholder="Цена"
+                      label="Введите цену"
+                    ></v-text-field>
+                  </v-form>
                 </v-row>
               </v-container>
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="red darken-1" text @click="close">Отмена</v-btn>
-              <v-btn color="blue darken-1" text @click="save">Сохранить</v-btn>
+              <v-btn
+                color="blue darken-1"
+                text
+                @click="save"
+                :disabled="!valid"
+              >
+                Сохранить
+              </v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -124,6 +137,14 @@ export default {
     ],
     products: [],
     loading: false,
+    valid: false,
+    priceRules: [
+      v => !!v || "Цена не может быть пустой!",
+      v =>
+        (typeof v == "string" && !v.includes(",")) ||
+        "Дробное число записывает через точку!",
+      v => !isNaN(v) || "Цена может быть тольком числом!"
+    ],
     editedIndex: -1,
     options: {},
     totalProducts: 0,
