@@ -119,7 +119,7 @@ export default {
     dialog: false,
     deleteEntity: false,
     total: 0,
-    valid: false,
+    valid: true,
     headers: [
       {
         text: "Наименование",
