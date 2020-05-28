@@ -60,9 +60,14 @@ export default {
       this.message = value;
     },
     async close() {
-      closeWindows();
-      await logout();
-      this.$store.dispatch("logout");
+      try {
+        await logout();
+        this.$store.dispatch("logout");
+      } catch (error) {
+        console.log(error);
+      } finally {
+        closeWindows();
+      }
     },
     minimize() {
       minimizeWindows();
