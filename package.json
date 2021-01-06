@@ -14,7 +14,7 @@
   "main": "background.js",
   "dependencies": {
     "@vue/cli": "^4.5.9",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "chart.js": "^2.9.3",
     "core-js": "^3.6.4",
     "vue": "^2.6.11",
